@@ -1,0 +1,165 @@
+@page "/addexpense"
+@page "/addexpense/{id:guid}"
+@rendermode InteractiveServer
+
+
+<div class="row-col-2">
+  @if (Id is null)
+  {
+    <h2>Add Expense</h2>
+  }
+  else
+  {
+    <h2>Edit Expense</h2>
+  }
+  @if (!ready)
+  {
+    <p><em>Loading...</em></p>
+  }
+  else
+  {
+    <EditForm Model="ExpenseRead" OnValidSubmit="HandleValidSubmit" FormName="edit-expense" class="col">
+      <div class="row mb-3">
+        <label>
+          Date
+          <InputDate @bind-Value="ExpenseRead.Date" class="form-control" />
+        </label>
+      </div>
+      <div class="row mb-3">
+        <label>
+          Vendor
+          <InputText @bind-Value="ExpenseRead.Vendor" class="form-control" />
+        </label>
+      </div>
+      <div class="row mb-3">
+        <label>
+          Description
+          <InputTextArea @bind-Value="ExpenseRead.Description" class="form-control" />
+        </label>
+      </div>
+      <div class="row mb-3">
+        <label>
+          Expense Type
+          <InputSelect @bind-Value="ExpenseRead.ExpenseTypeId" class="form-control">
+            <option value=""></option>
+            @foreach (var item in types!)
+            {
+              <option value="@item.Id">
+                @item.Type
+              </option>
+            }
+          </InputSelect>
+        </label>
+      </div>
+      <div class="row mb-3">
+        <label>
+          Amount
+          <InputNumber @bind-Value="ExpenseRead.Amount" class="form-control" />
+        </label>
+      </div>
+      <div class="row mb-3">
+        <label>
+          Paid?
+          <InputCheckbox @bind-Value="ExpenseRead.Paid" class="form-check-input mx-1" />
+        </label>
+      </div>
+      <div class="pt-2 pb-2">
+        @if(Id is null)
+        {
+      <button type="submit" class="btn btn-primary mr-auto">
+        Add
+        </button>
+        }
+    else{
+      <button type="submit" class="btn btn-success mr-auto">
+        Update
+        </button>
+}
+        
+      </div>
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+
+    </EditForm>
+    <div>@error</div>
+  }
+
+</div>
+
+
+
+
+@code {
+  [Parameter] public Guid? Id { get; set; }
+  private bool ready;
+  private string? error;
+  [SupplyParameterFromForm(FormName = "edit-expense")]
+  public ExpenseReadDto? ExpenseRead { get; set; }
+  private List<ExpenseType>? types;
+
+  HttpClient httpClient;
+
+
+  protected override async Task OnInitializedAsync()
+  {
+    httpClient = httpClientFactory.CreateClient("backendApi");
+
+    types = await httpClient.GetFromJsonAsync<List<ExpenseType>>("api/expensetypes");
+
+
+  }
+
+
+  protected override async Task OnParametersSetAsync()
+  {
+
+    if (Id is not null)
+    {
+      try
+      {
+        ExpenseRead = await httpClient.GetFromJsonAsync<ExpenseReadDto>($"api/expenses/{Id.ToString()}");
+        @* var response = await httpClient.GetFromJsonAsync<ExpenseReadDto>($"api/expensetypes/{Id.ToString()}"); *@
+        Console.WriteLine("{0} {1}", ExpenseRead.Vendor, ExpenseRead.Id);
+      }
+      catch (Exception)
+      {
+        navigationManager.NavigateTo("/expenses");
+      }
+    }
+    else { ExpenseRead = new(); }
+    ready = true;
+    await base.OnParametersSetAsync();
+  }
+
+  async Task HandleValidSubmit()
+  {
+
+    HttpResponseMessage response;
+    if (ExpenseRead!.Id is null)
+    {
+      response = await httpClient.PostAsJsonAsync("api/expenses", ExpenseCreateDto.CreateFromReadDto(ExpenseRead));
+      if (!response.IsSuccessStatusCode)
+      {
+        navigationManager.NavigateTo("/expenses");
+        return;
+      }
+      else
+        error = response.ReasonPhrase;
+    }
+    else
+    {
+      string requestUri = $"api/Expenses/{ExpenseRead.Id}";
+      response = await httpClient.PutAsJsonAsync($"api/expenses/{ExpenseRead.Id}", ExpenseRead);
+    };
+    if (response.IsSuccessStatusCode)
+    {
+      navigationManager.NavigateTo("/expenses");
+    }
+    else
+    {
+      error = response.ReasonPhrase;
+    };
+
+
+  }
+}

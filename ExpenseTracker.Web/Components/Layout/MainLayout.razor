@@ -1,20 +1,46 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+@* <div class="page">
+<div class="sidebar">
+<NavMenu />
 </div>
+
+<main>
+<div class="top-row px-4">
+<a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+</div>
+
+<article class="content px-4">
+@Body
+</article>
+</main>
+</div> *@
+
+
+<header>
+    <ul class="nav nav-tabs bg-secondary bg-opacity-10">
+        <li class="nav-item">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                Home
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="expenses" Match="NavLinkMatch.All">
+                Expense
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="addexpense">
+                Add Expense
+            </NavLink>
+        </li>
+    </ul>
+</header>
+
+<main class="p-3">
+    @Body
+</main>
+
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

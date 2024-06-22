@@ -1,10 +1,20 @@
 using ExpenseTracker.Web.Components;
+using ExpenseTracker.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+
+var backendUrl = builder.Configuration["BACKEND_URL"] ?? throw new ArgumentNullException("BACKEND_URL must be provided");
+
+
+builder.Services.AddHttpClient("backendApi", client =>
+{
+    client.BaseAddress = new Uri(backendUrl);
+});
 
 var app = builder.Build();
 

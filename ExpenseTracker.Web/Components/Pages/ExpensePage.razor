@@ -1,0 +1,69 @@
+@page "/expenses"
+@inject IHttpClientFactory httpClientFactory
+
+
+<div>
+
+
+
+  @if (expenses == null)
+  {
+    <p><em>Loading…</em></p>
+  }
+  else if (expenses.Count == 0)
+  {
+    <div>None Found</div>
+  }
+  else
+  {
+    <table class="table table-hover">
+
+      <thead class="table-dark">
+        <tr>
+          <th></th>
+          <th>#</th>
+          <th>Date</th>
+          <th>Vendor</th>
+          <th class="text-right">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var item in expenses)
+        {
+          <tr class="@(item.Paid ? "" : "table-danger")">
+            <td>
+              <a href="/addexpense/@item.Id">
+                <i class="bi bi-pencil-square"></i>
+
+              </a>
+            </td>
+            <td>@item.Id</td>
+            <td>@item.Date!.Value.ToShortDateString()</td>
+            <td>@item.Vendor</td>
+            <td class="text-right">@String.Format("{0:C1}",@item.Amount)</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+</div>
+
+
+
+@code {
+  List<Expense>? expenses;
+  HttpClient httpClient;
+}
+
+
+@code {
+
+
+
+  protected override async Task OnInitializedAsync()
+  {
+    httpClient = httpClientFactory.CreateClient("backendApi");
+    expenses = await httpClient.GetFromJsonAsync<List<Expense>>("api/expenses");
+  }
+}

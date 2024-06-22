@@ -1,9 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExpenseTracker.Shared\ExpenseTracker.Shared.csproj" />
+  </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>b1bda737-7089-43b5-833c-6b88539e8e6e</UserSecretsId>
   </PropertyGroup>
 
 </Project>
